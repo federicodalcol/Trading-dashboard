@@ -1,0 +1,13 @@
+{
+  "last_update": "In attesa primo aggiornamento",
+  "sentiment": "Caricamento...",
+  "sentiment_color": "#636e72",
+  "indicators": {
+    "vix": {"value": 0, "change": 0},
+    "spy": {"value": 0, "change": 0},
+    "gold": {"value": 0},
+    "dxy": {"value": 0},
+    "eurusd": {"value": 0},
+    "bitcoin": {"value": 0}
+  }
+}
