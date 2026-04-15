@@ -1,13 +1,27 @@
 {
-  "last_update": "In attesa primo aggiornamento",
-  "sentiment": "Caricamento...",
-  "sentiment_color": "#636e72",
+  "last_update": "2026-04-15 14:07:13 UTC",
+  "sentiment": "NEUTRALE \u2696\ufe0f",
+  "sentiment_color": "#fdcb6e",
   "indicators": {
-    "vix": {"value": 0, "change": 0},
-    "spy": {"value": 0, "change": 0},
-    "gold": {"value": 0},
-    "dxy": {"value": 0},
-    "eurusd": {"value": 0},
-    "bitcoin": {"value": 0}
+    "vix": {
+      "value": 17.75,
+      "change": -3.32
+    },
+    "spy": {
+      "value": 695.32,
+      "change": 0.12
+    },
+    "gold": {
+      "value": 2000.0
+    },
+    "dxy": {
+      "value": 104.5
+    },
+    "eurusd": {
+      "value": 1.17938
+    },
+    "bitcoin": {
+      "value": 73937.58
+    }
   }
 }
