@@ -1,27 +1,27 @@
 {
-  "last_update": "2026-04-16 07:11:04 UTC",
+  "last_update": "2026-04-16 11:41:17 UTC",
   "sentiment": "NEUTRALE \u2696\ufe0f",
   "sentiment_color": "#fdcb6e",
   "indicators": {
     "vix": {
-      "value": 18.17,
-      "change": -1.03
+      "value": 18.25,
+      "change": 0.44
     },
     "spy": {
       "value": 699.94,
       "change": 0.79
     },
     "gold": {
-      "value": 4848.0
+      "value": 4840.2
     },
     "dxy": {
-      "value": 98.0
+      "value": 98.16
     },
     "eurusd": {
-      "value": 1.1805
+      "value": 1.17869
     },
     "bitcoin": {
-      "value": 74983.72
+      "value": 74399.34
     }
   }
 }
