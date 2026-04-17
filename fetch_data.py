@@ -2,6 +2,7 @@ import yfinance as yf
 import json
 from datetime import datetime, timedelta
 import os
+from macro_analysis import analyze_all_pairs
 
 def safe_download(ticker_symbol, default_value):
     """Download sicuro con fallback"""
@@ -71,6 +72,16 @@ def fetch_market_data():
         now_utc_plus_2 = datetime.utcnow() + timedelta(hours=2)
         timestamp = now_utc_plus_2.strftime("%Y-%m-%d %H:%M:%S UTC+2")
         
+        # Analisi macro
+        print("📊 Running macro analysis...")
+        try:
+            macro_results = analyze_all_pairs()
+        except Exception as e:
+            print(f"⚠️ Macro analysis failed: {e}")
+            macro_results = {
+                "EURUSD": {"final_signal": "N/A", "total_score": 0},
+                "GBPUSD": {"final_signal": "N/A", "total_score": 0}
+            }
         # Crea dati
         data = {
             "last_update": timestamp,
@@ -98,6 +109,7 @@ def fetch_market_data():
                     "value": round(btc, 2)
                 }
             }
+            "macro_analysis": macro_results
         }
         
         # Salva
