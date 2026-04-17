@@ -1,6 +1,6 @@
 import yfinance as yf
 import json
-from datetime import datetime timedelta
+from datetime import datetime, timedelta
 import os
 
 def safe_download(ticker_symbol, default_value):
@@ -67,9 +67,13 @@ def fetch_market_data():
             sentiment = "NEUTRALE ⚖️"
             sentiment_color = "#fdcb6e"
         
+        # Timestamp UTC+2
+        now_utc_plus_2 = datetime.utcnow() + timedelta(hours=2)
+        timestamp = now_utc_plus_2.strftime("%Y-%m-%d %H:%M:%S UTC+2")
+        
         # Crea dati
         data = {
-            "last_update": (datetime.utcnow().replace(tzinfo=None) + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S UTC+2"),
+            "last_update": timestamp,
             "sentiment": sentiment,
             "sentiment_color": sentiment_color,
             "indicators": {
@@ -104,6 +108,7 @@ def fetch_market_data():
         print("✅ Dati salvati con successo!")
         print(f"   VIX: {vix:.2f} ({vix_change:+.2f}%)")
         print(f"   SPY: ${spy:.2f} ({spy_change:+.2f}%)")
+        print(f"   Timestamp: {timestamp}")
         print(f"   Sentiment: {sentiment}")
         
         return True
