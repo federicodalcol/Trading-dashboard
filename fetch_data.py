@@ -1,6 +1,6 @@
 import yfinance as yf
 import json
-from datetime import datetime
+from datetime import datetime timedelta
 import os
 
 def safe_download(ticker_symbol, default_value):
@@ -69,7 +69,7 @@ def fetch_market_data():
         
         # Crea dati
         data = {
-            "last_update": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "last_update": (datetime.utcnow().replace(tzinfo=None) + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S UTC+2"),
             "sentiment": sentiment,
             "sentiment_color": sentiment_color,
             "indicators": {
