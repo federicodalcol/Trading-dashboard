@@ -1,27 +1,77 @@
 {
-  "last_update": "2026-04-17 06:24:16 UTC",
+  "last_update": "2026-04-20 15:30:39 UTC+2",
   "sentiment": "NEUTRALE \u2696\ufe0f",
   "sentiment_color": "#fdcb6e",
   "indicators": {
     "vix": {
-      "value": 17.94,
-      "change": -1.27
+      "value": 18.85,
+      "change": 7.84
     },
     "spy": {
-      "value": 701.66,
-      "change": 0.25
+      "value": 709.0,
+      "change": -0.16
     },
     "gold": {
-      "value": 4809.6
+      "value": 4838.0
     },
     "dxy": {
-      "value": 98.25
+      "value": 98.21
     },
     "eurusd": {
-      "value": 1.17813
+      "value": 1.17772
     },
     "bitcoin": {
-      "value": 74808.45
+      "value": 75168.31
+    }
+  },
+  "macro_analysis": {
+    "EURUSD": {
+      "pair": "EURUSD",
+      "final_signal": "SELL \ud83d\udcc9",
+      "signal_color": "#e74c3c",
+      "total_score": -2,
+      "components": {
+        "interest_rates": {
+          "score": -1,
+          "signal": "SELL (Diff: -0.50%)"
+        },
+        "inflation": {
+          "score": 0,
+          "signal": "NEUTRAL (CPI Diff: +0.2%)"
+        },
+        "cot": {
+          "score": 0,
+          "signal": "COT: NEUTRAL"
+        },
+        "geopolitical": {
+          "score": -1,
+          "signal": "Geo: USD Safe Haven"
+        }
+      }
+    },
+    "GBPUSD": {
+      "pair": "GBPUSD",
+      "final_signal": "NEUTRAL \u2696\ufe0f",
+      "signal_color": "#fdcb6e",
+      "total_score": 0,
+      "components": {
+        "interest_rates": {
+          "score": 1,
+          "signal": "BUY (Diff: +0.25%)"
+        },
+        "inflation": {
+          "score": 0,
+          "signal": "NEUTRAL (CPI Diff: +0.1%)"
+        },
+        "cot": {
+          "score": 0,
+          "signal": "COT: NEUTRAL"
+        },
+        "geopolitical": {
+          "score": -1,
+          "signal": "Geo: USD Safe Haven"
+        }
+      }
     }
   }
 }
