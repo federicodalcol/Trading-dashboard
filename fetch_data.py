@@ -7,307 +7,403 @@ import os
 # MACRO ANALYSIS MODULE (Integrato)
 # ============================================
 
-class MacroAnalyzer:
+class AdvancedMacroAnalyzer:
     """
-    Analizza EUR/USD e GBP/USD basandosi su:
-    - Tassi di interesse
-    - Inflazione (CPI)
-    - COT Report sentiment
-    - Rischio geopolitico
+    Sistema di scoring avanzato 1-100 per EUR/USD e GBP/USD
+    Integra: Tassi, Inflazione, COT, VIX, Correlazioni, Momentum Tecnico
     """
     
-    def __init__(self):
-        # Tassi di interesse correnti (aggiorna manualmente ogni mese)
+    def __init__(self, vix_value, spy_change, gold_value, dxy_value):
+        # Dati di mercato per correlazioni
+        self.vix = vix_value
+        self.spy_change = spy_change
+        self.gold = gold_value
+        self.dxy = dxy_value
+        
+        # Tassi di interesse (AGGIORNA MANUALMENTE)
         self.interest_rates = {
-            "EUR": 4.00,  # BCE
-            "USD": 4.50,  # FED
-            "GBP": 4.75   # BOE
+            "EUR": 4.00,  # BCE - Ultimo dato
+            "USD": 4.50,  # FED - Ultimo dato
+            "GBP": 4.75   # BOE - Ultimo dato
         }
         
-        # Inflazione CPI (aggiorna manualmente ogni mese)
+        # Inflazione CPI (AGGIORNA MANUALMENTE)
         self.inflation = {
             "EUR": 2.4,   # Eurozona
             "USD": 2.6,   # USA
             "GBP": 2.5    # UK
         }
         
-    def analyze_interest_rate_differential(self, pair):
-        """Analizza differenziale tassi di interesse"""
+        # PIL Growth (AGGIORNA TRIMESTRALMENTE)
+        self.gdp_growth = {
+            "EUR": 0.9,   # % annuale
+            "USD": 2.5,   # % annuale
+            "GBP": 0.7    # % annuale
+        }
+        
+    def score_interest_rates(self, pair):
+        """Score 0-20 basato su differenziale tassi"""
         if pair == "EURUSD":
             base, quote = "EUR", "USD"
         elif pair == "GBPUSD":
             base, quote = "GBP", "USD"
         else:
-            return 0, "N/A"
+            return 10, "N/A"
         
-        differential = self.interest_rates[base] - self.interest_rates[quote]
+        diff = self.interest_rates[base] - self.interest_rates[quote]
         
-        if differential > 0.5:
-            signal = "STRONG BUY"
+        # Differenziale positivo = valuta base più forte
+        if diff > 1.0:
+            score = 20
+            signal = "🟢 Forte vantaggio tassi"
+        elif diff > 0.5:
+            score = 17
+            signal = "🟢 Vantaggio tassi"
+        elif diff > 0.2:
+            score = 14
+            signal = "🟡 Leggero vantaggio"
+        elif diff > -0.2:
+            score = 10
+            signal = "⚪ Neutrale"
+        elif diff > -0.5:
+            score = 6
+            signal = "🟡 Leggero svantaggio"
+        elif diff > -1.0:
+            score = 3
+            signal = "🔴 Svantaggio tassi"
+        else:
+            score = 0
+            signal = "🔴 Forte svantaggio tassi"
+        
+        return score, signal
+    
+    def score_inflation(self, pair):
+        """Score 0-15 basato su inflazione"""
+        if pair == "EURUSD":
+            base, quote = "EUR", "USD"
+        elif pair == "GBPUSD":
+            base, quote = "GBP", "USD"
+        else:
+            return 7, "N/A"
+        
+        # Inflazione più bassa = valuta più forte
+        diff = self.inflation[quote] - self.inflation[base]
+        
+        if diff > 1.0:
+            score = 15
+            signal = "🟢 Inflazione favorevole"
+        elif diff > 0.3:
+            score = 12
+            signal = "🟢 Inflazione ok"
+        elif diff > -0.3:
+            score = 7
+            signal = "⚪ Inflazione neutrale"
+        elif diff > -1.0:
+            score = 3
+            signal = "🔴 Inflazione sfavorevole"
+        else:
+            score = 0
+            signal = "🔴 Inflazione critica"
+        
+        return score, signal
+    
+    def score_gdp(self, pair):
+        """Score 0-10 basato su crescita PIL"""
+        if pair == "EURUSD":
+            base, quote = "EUR", "USD"
+        elif pair == "GBPUSD":
+            base, quote = "GBP", "USD"
+        else:
+            return 5, "N/A"
+        
+        diff = self.gdp_growth[base] - self.gdp_growth[quote]
+        
+        if diff > 1.0:
+            score = 10
+            signal = "🟢 PIL forte"
+        elif diff > 0.3:
+            score = 8
+            signal = "🟢 PIL positivo"
+        elif diff > -0.3:
+            score = 5
+            signal = "⚪ PIL neutrale"
+        elif diff > -1.0:
             score = 2
-        elif differential > 0:
-            signal = "BUY"
-            score = 1
-        elif differential < -0.5:
-            signal = "STRONG SELL"
-            score = -2
-        elif differential < 0:
-            signal = "SELL"
-            score = -1
+            signal = "🔴 PIL debole"
         else:
-            signal = "NEUTRAL"
             score = 0
-            
-        return score, f"{signal} (Diff: {differential:+.2f}%)"
-    
-    def analyze_inflation_differential(self, pair):
-        """Analizza differenziale inflazione"""
-        if pair == "EURUSD":
-            base, quote = "EUR", "USD"
-        elif pair == "GBPUSD":
-            base, quote = "GBP", "USD"
-        else:
-            return 0, "N/A"
+            signal = "🔴 PIL molto debole"
         
-        # Inflazione più alta = valuta più debole
-        differential = self.inflation[quote] - self.inflation[base]
-        
-        if differential > 0.5:
-            signal = "BUY"
-            score = 1
-        elif differential < -0.5:
-            signal = "SELL"
-            score = -1
-        else:
-            signal = "NEUTRAL"
-            score = 0
-            
-        return score, f"{signal} (CPI Diff: {differential:+.1f}%)"
+        return score, signal
     
-    def get_cot_sentiment(self, pair):
-        """Analisi COT Report (semplificata)"""
+    def score_cot_report(self, pair):
+        """Score 0-15 basato su posizionamento istituzionale"""
+        # Simulazione COT (in produzione: dati CFTC reali)
+        
         if pair == "EURUSD":
-            retail_long_pct = 65
-            if retail_long_pct > 70:
-                return -1, "COT: Smart Money SHORT"
-            elif retail_long_pct < 30:
-                return 1, "COT: Smart Money LONG"
+            # Posizionamento netto speculatori (simulato)
+            net_long_pct = 58  # % posizioni long nette
+            
+            if net_long_pct > 70:
+                score = 15
+                signal = "🟢 Istituzionali molto long"
+            elif net_long_pct > 55:
+                score = 12
+                signal = "🟢 Istituzionali long"
+            elif net_long_pct > 45:
+                score = 7
+                signal = "⚪ COT neutrale"
+            elif net_long_pct > 30:
+                score = 3
+                signal = "🔴 Istituzionali short"
             else:
-                return 0, "COT: NEUTRAL"
+                score = 0
+                signal = "🔴 Istituzionali molto short"
         
         elif pair == "GBPUSD":
-            retail_long_pct = 55
-            if retail_long_pct > 70:
-                return -1, "COT: Smart Money SHORT"
-            elif retail_long_pct < 30:
-                return 1, "COT: Smart Money LONG"
+            net_long_pct = 52
+            
+            if net_long_pct > 70:
+                score = 15
+                signal = "🟢 Istituzionali molto long"
+            elif net_long_pct > 55:
+                score = 12
+                signal = "🟢 Istituzionali long"
+            elif net_long_pct > 45:
+                score = 7
+                signal = "⚪ COT neutrale"
+            elif net_long_pct > 30:
+                score = 3
+                signal = "🔴 Istituzionali short"
             else:
-                return 0, "COT: NEUTRAL"
+                score = 0
+                signal = "🔴 Istituzionali molto short"
+        else:
+            score = 7
+            signal = "⚪ N/A"
         
-        return 0, "COT: N/A"
+        return score, signal
     
-    def get_geopolitical_risk(self, pair):
-        """Valuta rischio geopolitico"""
-        geopolitical_factors = {
-            "EUR": 0,   # Stabile
-            "USD": 1,   # Safe haven
-            "GBP": -1   # Post-Brexit instabilità
+    def score_vix_correlation(self, pair):
+        """Score 0-10 basato su VIX (Risk sentiment)"""
+        # VIX alto = USD forte (safe haven)
+        
+        if pair == "EURUSD":
+            # VIX alto = EUR debole vs USD
+            if self.vix > 30:
+                score = 2  # EUR debole
+                signal = "🔴 VIX alto (USD safe haven)"
+            elif self.vix > 25:
+                score = 4
+                signal = "🟡 VIX elevato"
+            elif self.vix > 20:
+                score = 6
+                signal = "⚪ VIX normale"
+            elif self.vix > 15:
+                score = 8
+                signal = "🟢 VIX basso"
+            else:
+                score = 10  # EUR forte
+                signal = "🟢 VIX molto basso (risk on)"
+        
+        elif pair == "GBPUSD":
+            # Stesso meccanismo
+            if self.vix > 30:
+                score = 2
+                signal = "🔴 VIX alto"
+            elif self.vix > 25:
+                score = 4
+                signal = "🟡 VIX elevato"
+            elif self.vix > 20:
+                score = 6
+                signal = "⚪ VIX normale"
+            elif self.vix > 15:
+                score = 8
+                signal = "🟢 VIX basso"
+            else:
+                score = 10
+                signal = "🟢 VIX molto basso"
+        else:
+            score = 5
+            signal = "⚪ N/A"
+        
+        return score, signal
+    
+    def score_dxy_correlation(self, pair):
+        """Score 0-10 basato su forza del dollaro"""
+        # DXY alto = USD forte = EUR/GBP deboli
+        
+        if pair in ["EURUSD", "GBPUSD"]:
+            # DXY sopra 105 = USD molto forte
+            if self.dxy > 107:
+                score = 1
+                signal = "🔴 USD fortissimo"
+            elif self.dxy > 105:
+                score = 3
+                signal = "🔴 USD forte"
+            elif self.dxy > 103:
+                score = 5
+                signal = "⚪ USD neutrale"
+            elif self.dxy > 101:
+                score = 7
+                signal = "🟢 USD debole"
+            else:
+                score = 10
+                signal = "🟢 USD molto debole"
+        else:
+            score = 5
+            signal = "⚪ N/A"
+        
+        return score, signal
+    
+    def score_gold_correlation(self, pair):
+        """Score 0-10 basato su correlazione con oro"""
+        # Oro alto = risk off = USD forte
+        
+        if pair in ["EURUSD", "GBPUSD"]:
+            if self.gold > 2100:
+                score = 3
+                signal = "🟡 Oro alto (risk off)"
+            elif self.gold > 2000:
+                score = 5
+                signal = "⚪ Oro normale"
+            elif self.gold > 1900:
+                score = 7
+                signal = "🟢 Oro basso"
+            else:
+                score = 9
+                signal = "🟢 Oro molto basso"
+        else:
+            score = 5
+            signal = "⚪ N/A"
+        
+        return score, signal
+    
+    def score_equity_momentum(self, pair):
+        """Score 0-10 basato su momentum azionario"""
+        # SPY in crescita = risk on = EUR/GBP forti vs USD
+        
+        if pair in ["EURUSD", "GBPUSD"]:
+            if self.spy_change > 1.5:
+                score = 10
+                signal = "🟢 Risk on forte"
+            elif self.spy_change > 0.5:
+                score = 8
+                signal = "🟢 Risk on"
+            elif self.spy_change > -0.5:
+                score = 5
+                signal = "⚪ Neutrale"
+            elif self.spy_change > -1.5:
+                score = 3
+                signal = "🔴 Risk off"
+            else:
+                score = 0
+                signal = "🔴 Risk off forte"
+        else:
+            score = 5
+            signal = "⚪ N/A"
+        
+        return score, signal
+    
+    def score_geopolitical(self, pair):
+        """Score 0-10 basato su fattori geopolitici"""
+        geo_risk = {
+            "EUR": 5,   # Neutrale (0-10 scale)
+            "USD": 7,   # Leggero safe haven
+            "GBP": 4    # Post-Brexit instabilità
         }
         
         if pair == "EURUSD":
-            risk_diff = geopolitical_factors["EUR"] - geopolitical_factors["USD"]
-            if risk_diff < 0:
-                return -1, "Geo: USD Safe Haven"
-            elif risk_diff > 0:
-                return 1, "Geo: EUR Preferred"
+            diff = geo_risk["EUR"] - geo_risk["USD"]
+            score = max(0, min(10, 5 + diff * 2))
+            
+            if score > 7:
+                signal = "🟢 Geo favorevole"
+            elif score > 4:
+                signal = "⚪ Geo neutrale"
             else:
-                return 0, "Geo: NEUTRAL"
+                signal = "🔴 Geo sfavorevole"
         
         elif pair == "GBPUSD":
-            risk_diff = geopolitical_factors["GBP"] - geopolitical_factors["USD"]
-            if risk_diff < 0:
-                return -1, "Geo: USD Safe Haven"
-            elif risk_diff > 0:
-                return 1, "Geo: GBP Preferred"
+            diff = geo_risk["GBP"] - geo_risk["USD"]
+            score = max(0, min(10, 5 + diff * 2))
+            
+            if score > 7:
+                signal = "🟢 Geo favorevole"
+            elif score > 4:
+                signal = "⚪ Geo neutrale"
             else:
-                return 0, "Geo: NEUTRAL"
+                signal = "🔴 Geo sfavorevole"
+        else:
+            score = 5
+            signal = "⚪ N/A"
         
-        return 0, "Geo: N/A"
+        return score, signal
     
-    def get_comprehensive_analysis(self, pair):
-        """Analisi completa del pair"""
+    def get_comprehensive_score(self, pair):
+        """Calcola score totale 0-100"""
         
-        rate_score, rate_signal = self.analyze_interest_rate_differential(pair)
-        infl_score, infl_signal = self.analyze_inflation_differential(pair)
-        cot_score, cot_signal = self.get_cot_sentiment(pair)
-        geo_score, geo_signal = self.get_geopolitical_risk(pair)
+        # Raccolta scores (totale peso: 100)
+        rate_score, rate_signal = self.score_interest_rates(pair)      # 0-20
+        infl_score, infl_signal = self.score_inflation(pair)            # 0-15
+        gdp_score, gdp_signal = self.score_gdp(pair)                    # 0-10
+        cot_score, cot_signal = self.score_cot_report(pair)             # 0-15
+        vix_score, vix_signal = self.score_vix_correlation(pair)        # 0-10
+        dxy_score, dxy_signal = self.score_dxy_correlation(pair)        # 0-10
+        gold_score, gold_signal = self.score_gold_correlation(pair)     # 0-10
+        equity_score, equity_signal = self.score_equity_momentum(pair)  # 0-10
+        geo_score, geo_signal = self.score_geopolitical(pair)           # 0-10
         
-        total_score = rate_score + infl_score + cot_score + geo_score
+        # Score totale (0-100)
+        total_score = (rate_score + infl_score + gdp_score + cot_score + 
+                      vix_score + dxy_score + gold_score + equity_score + geo_score)
         
-        if total_score >= 3:
-            final_signal = "STRONG BUY 🚀"
+        # Determina segnale finale
+        if total_score >= 75:
+            final_signal = "STRONG BUY 🚀🚀"
             signal_color = "#00b894"
-        elif total_score >= 1:
+            recommendation = "Forte opportunità di acquisto"
+        elif total_score >= 60:
             final_signal = "BUY 📈"
             signal_color = "#00b894"
-        elif total_score <= -3:
-            final_signal = "STRONG SELL 📉"
-            signal_color = "#e74c3c"
-        elif total_score <= -1:
-            final_signal = "SELL 📉"
-            signal_color = "#e74c3c"
-        else:
+            recommendation = "Segnale di acquisto"
+        elif total_score >= 45:
             final_signal = "NEUTRAL ⚖️"
             signal_color = "#fdcb6e"
+            recommendation = "Attendere conferme"
+        elif total_score >= 30:
+            final_signal = "SELL 📉"
+            signal_color = "#e17055"
+            recommendation = "Segnale di vendita"
+        else:
+            final_signal = "STRONG SELL 🔴🔴"
+            signal_color = "#e74c3c"
+            recommendation = "Forte segnale di vendita"
         
         return {
             "pair": pair,
+            "score": round(total_score, 1),
             "final_signal": final_signal,
             "signal_color": signal_color,
-            "total_score": total_score,
+            "recommendation": recommendation,
             "components": {
-                "interest_rates": {
-                    "score": rate_score,
-                    "signal": rate_signal
-                },
-                "inflation": {
-                    "score": infl_score,
-                    "signal": infl_signal
-                },
-                "cot": {
-                    "score": cot_score,
-                    "signal": cot_signal
-                },
-                "geopolitical": {
-                    "score": geo_score,
-                    "signal": geo_signal
-                }
+                "interest_rates": {"score": rate_score, "max": 20, "signal": rate_signal},
+                "inflation": {"score": infl_score, "max": 15, "signal": infl_signal},
+                "gdp": {"score": gdp_score, "max": 10, "signal": gdp_signal},
+                "cot_report": {"score": cot_score, "max": 15, "signal": cot_signal},
+                "vix": {"score": vix_score, "max": 10, "signal": vix_signal},
+                "dxy": {"score": dxy_score, "max": 10, "signal": dxy_signal},
+                "gold": {"score": gold_score, "max": 10, "signal": gold_signal},
+                "equity": {"score": equity_score, "max": 10, "signal": equity_signal},
+                "geopolitical": {"score": geo_score, "max": 10, "signal": geo_signal}
             }
         }
 
-def analyze_all_pairs():
-    """Analizza tutti i pair"""
-    analyzer = MacroAnalyzer()
+def analyze_all_pairs(vix, spy_change, gold, dxy):
+    """Analizza tutti i pair con scoring avanzato"""
+    analyzer = AdvancedMacroAnalyzer(vix, spy_change, gold, dxy)
     
     return {
-        "EURUSD": analyzer.get_comprehensive_analysis("EURUSD"),
-        "GBPUSD": analyzer.get_comprehensive_analysis("GBPUSD")
+        "EURUSD": analyzer.get_comprehensive_score("EURUSD"),
+        "GBPUSD": analyzer.get_comprehensive_score("GBPUSD")
     }
-
-# ============================================
-# MARKET DATA FETCHER
-# ============================================
-
-def safe_download(ticker_symbol, default_value):
-    """Download sicuro con fallback"""
-    try:
-        ticker = yf.Ticker(ticker_symbol)
-        hist = ticker.history(period="5d")
-        if len(hist) > 0:
-            return float(hist['Close'].iloc[-1])
-        return default_value
-    except Exception as e:
-        print(f"⚠️ Errore scaricando {ticker_symbol}: {e}")
-        return default_value
-
-def safe_download_with_change(ticker_symbol, default_value, default_change):
-    """Download con calcolo variazione"""
-    try:
-        ticker = yf.Ticker(ticker_symbol)
-        hist = ticker.history(period="5d")
-        if len(hist) >= 2:
-            current = float(hist['Close'].iloc[-1])
-            previous = float(hist['Close'].iloc[-2])
-            change = ((current - previous) / previous * 100)
-            return current, change
-        return default_value, default_change
-    except Exception as e:
-        print(f"⚠️ Errore scaricando {ticker_symbol}: {e}")
-        return default_value, default_change
-
-def fetch_market_data():
-    """Scarica dati di mercato e analisi macro"""
-    print("🔄 Inizio download dati...")
-    
-    try:
-        # Scarica dati di mercato
-        print("📊 Downloading market data...")
-        vix, vix_change = safe_download_with_change("^VIX", 20.0, 0.0)
-        spy, spy_change = safe_download_with_change("SPY", 500.0, 0.0)
-        gold = safe_download("GC=F", 2000.0)
-        dxy = safe_download("DX-Y.NYB", 104.5)
-        eurusd = safe_download("EURUSD=X", 1.08)
-        btc = safe_download("BTC-USD", 50000.0)
-        
-        # Sentiment
-        if vix > 25:
-            sentiment = "RISK OFF 🛡️"
-            sentiment_color = "#e74c3c"
-        elif vix < 15:
-            sentiment = "RISK ON 🚀"
-            sentiment_color = "#00b894"
-        else:
-            sentiment = "NEUTRALE ⚖️"
-            sentiment_color = "#fdcb6e"
-        
-        # Timestamp UTC+2
-        now_utc_plus_2 = datetime.utcnow() + timedelta(hours=2)
-        timestamp = now_utc_plus_2.strftime("%Y-%m-%d %H:%M:%S UTC+2")
-        
-        # Analisi macro
-        print("📊 Running macro analysis...")
-        macro_results = analyze_all_pairs()
-        
-        # Crea dati completi
-        data = {
-            "last_update": timestamp,
-            "sentiment": sentiment,
-            "sentiment_color": sentiment_color,
-            "indicators": {
-                "vix": {
-                    "value": round(vix, 2),
-                    "change": round(vix_change, 2)
-                },
-                "spy": {
-                    "value": round(spy, 2),
-                    "change": round(spy_change, 2)
-                },
-                "gold": {
-                    "value": round(gold, 2)
-                },
-                "dxy": {
-                    "value": round(dxy, 2)
-                },
-                "eurusd": {
-                    "value": round(eurusd, 5)
-                },
-                "bitcoin": {
-                    "value": round(btc, 2)
-                }
-            },
-            "macro_analysis": macro_results
-        }
-        
-        # Salva
-        os.makedirs('data', exist_ok=True)
-        with open('data/market_data.json', 'w') as f:
-            json.dump(data, f, indent=2)
-        
-        print("✅ Dati salvati con successo!")
-        print(f"   VIX: {vix:.2f} ({vix_change:+.2f}%)")
-        print(f"   SPY: ${spy:.2f} ({spy_change:+.2f}%)")
-        print(f"   Timestamp: {timestamp}")
-        print(f"   EUR/USD: {macro_results['EURUSD']['final_signal']}")
-        print(f"   GBP/USD: {macro_results['GBPUSD']['final_signal']}")
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Errore: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-
-if __name__ == "__main__":
-    success = fetch_market_data()
-    exit(0 if success else 1)
