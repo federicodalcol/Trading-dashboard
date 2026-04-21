@@ -1,5 +1,5 @@
 {
-  "last_update": "2026-04-21 01:28:36 UTC+2",
+  "last_update": "2026-04-21 08:24:06 UTC+2",
   "sentiment": "NEUTRALE \u2696\ufe0f",
   "sentiment_color": "#fdcb6e",
   "indicators": {
@@ -12,16 +12,16 @@
       "change": -0.2
     },
     "gold": {
-      "value": 4845.4
+      "value": 4803.0
     },
     "dxy": {
-      "value": 98.05
+      "value": 98.13
     },
     "eurusd": {
-      "value": 1.17897
+      "value": 1.17772
     },
     "bitcoin": {
-      "value": 75661.75
+      "value": 75775.34
     }
   },
   "macro_analysis": {
